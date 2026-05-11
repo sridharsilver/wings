@@ -110,23 +110,49 @@ export function AdminShell() {
         if (permStatus.receive === 'prompt') {
           permStatus = await PushNotifications.requestPermissions();
         }
-        if (permStatus.receive !== 'granted') return;
+        
+        if (permStatus.receive !== 'granted') {
+          console.warn('Push notification permission not granted:', permStatus.receive);
+          return;
+        }
 
-        await PushNotifications.register();
+        // Add listeners BEFORE registering
+        await PushNotifications.removeAllListeners();
 
-        PushNotifications.addListener('registration', (token) => {
-          console.log('Push registration success, token: ' + token.value);
+        PushNotifications.addListener('registration', async (token) => {
+          console.log('Push registration success, token:', token.value);
+          
+          // Save token to profile for server-side push notifications
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user?.id) {
+            const { error } = await supabase
+              .from('profiles')
+              .update({ push_token: token.value })
+              .eq('id', session.user.id);
+            
+            if (error) {
+              console.error('Error saving push token to profile:', error);
+            } else {
+              console.log('Push token saved to profile successfully');
+            }
+          }
         });
 
         PushNotifications.addListener('registrationError', (err) => {
-          console.error('Push registration error: ', err.error);
+          console.error('Push registration error:', err.error);
         });
 
         PushNotifications.addListener('pushNotificationReceived', (notification) => {
-          console.log('Push received: ', notification);
+          console.log('Push received in foreground:', notification);
         });
+
+        PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+          console.log('Push notification action performed:', notification);
+        });
+
+        await PushNotifications.register();
       } catch (err) {
-        console.error("Push notifications error", err);
+        console.error("Push notifications initialization error:", err);
       }
     };
 
