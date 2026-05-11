@@ -218,7 +218,7 @@ function HomePage() {
       {/* PORTFOLIO PREVIEW */}
       <Section>
         <SectionHeader eyebrow="Selected work" title="A glimpse of recent projects" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="flex flex-wrap justify-center gap-5">
           {featured.map((p, i) => (
             <motion.div
               key={p.id}
@@ -226,7 +226,7 @@ function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
-              className="group relative aspect-[4/3] rounded-2xl overflow-hidden glass shadow-elegant"
+              className="group relative aspect-[4/3] rounded-2xl overflow-hidden glass shadow-elegant w-full sm:w-[calc(50%-1.25rem)] lg:w-[calc(33.333%-1.25rem)] max-w-[400px]"
             >
               <img
                 src={p.image_url}
@@ -302,7 +302,7 @@ function HomePage() {
       {posts.length > 0 && (
         <Section>
           <SectionHeader eyebrow="Insights" title="Latest from our studio" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {posts.map((p, i) => {
               const hue = (p.id.length % 360) || 200;
               return (
@@ -312,7 +312,7 @@ function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.06 }}
-                  className="group rounded-2xl glass shadow-elegant overflow-hidden hover:bg-white/[0.06] transition"
+                  className="group rounded-2xl glass shadow-elegant overflow-hidden hover:bg-white/[0.06] transition w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-1.5rem)] max-w-[400px]"
                 >
                   <div className="aspect-[16/10] overflow-hidden relative">
                     {p.image_url ? (
