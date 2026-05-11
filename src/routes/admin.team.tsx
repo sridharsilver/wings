@@ -169,7 +169,7 @@ function TeamManagementPage() {
     }
   };
 
-  const columns = ["Member", "Status", "Role", "Order", "Actions"];
+  const columns = ["Member", "Status", "Role", "Order"];
   
   const rows = team.map((m) => [
     <div className="flex items-center gap-3" key={m.id}>
@@ -186,15 +186,7 @@ function TeamManagementPage() {
       {m.is_active ? <><Eye size={10} /> Visible</> : <><EyeOff size={10} /> Hidden</>}
     </div>,
     <span className="text-muted-foreground" key={`r-${m.id}`}>{m.role}</span>,
-    <span className="font-mono text-xs text-muted-foreground" key={`o-${m.id}`}>#{m.order_index}</span>,
-    <div className="flex gap-1" key={`a-${m.id}`} onClick={(e) => e.stopPropagation()}>
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-brand" onClick={() => handleEdit(m)}>
-        <Pencil size={14} />
-      </Button>
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(m.id)}>
-        <Trash2 size={14} />
-      </Button>
-    </div>
+    <span className="font-mono text-xs text-muted-foreground" key={`o-${m.id}`}>#{m.order_index}</span>
   ]);
 
   return (

@@ -127,7 +127,7 @@ function EnquiriesPage() {
     }
   }
 
-  const columns = ["Name", "Email", "Subject", "Message", "Status", "Date", "Actions"];
+  const columns = ["Name", "Email", "Subject", "Message", "Status", "Date"];
   const renderRows = (data: any[]) => data.map((e) => [
     <div className="font-medium" key={e.id}>{e.name}</div>,
     e.email,
@@ -138,37 +138,7 @@ function EnquiriesPage() {
     <StatusPill key={`s-${e.id}`} tone={e.status === "new" ? "amber" : "green"}>
       {e.status}
     </StatusPill>,
-    new Date(e.created_at).toLocaleDateString(),
-    <div className="flex gap-1" key={`a-${e.id}`} onClick={(ev) => ev.stopPropagation()}>
-      {e.phone && (
-        <a 
-          href={`https://wa.me/${e.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${e.name.split(' ')[0]}, we received your enquiry about "${e.subject || 'our services'}" at Wings Graphics. How can we assist you today?`)}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="Chat on WhatsApp"
-        >
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-green-500 hover:text-green-600 hover:bg-green-500/10">
-            <MessageCircle size={14} />
-          </Button>
-        </a>
-      )}
-      {e.email && (
-        <a href={`mailto:${e.email}?subject=Re: ${encodeURIComponent(e.subject || 'Your Enquiry')}`} title="Send Email">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-500/10">
-            <Mail size={14} />
-          </Button>
-        </a>
-      )}
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        className={`h-8 w-8 ${e.status === 'new' ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-500/10' : 'text-gray-400'}`} 
-        onClick={() => handleToggleStatus(e.id, e.status)}
-        title={e.status === 'new' ? "Mark as Replied" : "Mark as New"}
-      >
-        <CheckCircle size={14} />
-      </Button>
-    </div>
+    new Date(e.created_at).toLocaleDateString()
   ]);
 
   const newEnquiries = enquiries.filter(e => e.status === 'new');

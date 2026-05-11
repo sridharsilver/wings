@@ -140,7 +140,7 @@ function UsersPage() {
     setSaving(false);
   };
 
-  const columns = ["User", "Email", "Role", "Joined Date", "Actions"];
+  const columns = ["User", "Email", "Role", "Joined Date"];
   
   const rows = profiles.map((p) => [
     <div className="flex items-center gap-3" key={p.id}>
@@ -157,25 +157,7 @@ function UsersPage() {
     <StatusPill key={`r-${p.id}`} tone={p.full_name === "Sridhar Silver" ? "amber" : "blue"}>
       {p.full_name === "Sridhar Silver" ? "Super Admin" : "Admin"}
     </StatusPill>,
-    new Date(p.created_at).toLocaleDateString(),
-    <div className="flex gap-1" key={`a-${p.id}`} onClick={(e) => e.stopPropagation()}>
-      {isSuperAdmin && (
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8 text-brand hover:bg-brand/10" 
-          onClick={() => handleStartEdit(p)}
-          title="Edit User"
-        >
-          <Pencil size={14} />
-        </Button>
-      )}
-      <a href="https://supabase.com/dashboard/project/_/auth/users" target="_blank" rel="noopener noreferrer">
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Open in Supabase">
-          <ExternalLink size={14} />
-        </Button>
-      </a>
-    </div>
+    new Date(p.created_at).toLocaleDateString()
   ]);
 
   return (

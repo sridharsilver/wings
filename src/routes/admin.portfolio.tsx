@@ -145,7 +145,7 @@ function PortfolioPage() {
     }
   }
 
-  const columns = ["Project", "Category", "Status", "Date", "Actions"];
+  const columns = ["Project", "Category", "Status", "Date"];
   
   const rows = projects.map((p) => [
     <div className="flex items-center gap-3" key={p.id}>
@@ -158,15 +158,7 @@ function PortfolioPage() {
     <StatusPill key={`s-${p.id}`} tone={p.featured ? "green" : "amber"}>
       {p.featured ? "Featured" : "Regular"}
     </StatusPill>,
-    new Date(p.created_at).toLocaleDateString(),
-    <div className="flex gap-1" key={`a-${p.id}`} onClick={(e) => e.stopPropagation()}>
-      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(p)}>
-        <Edit2 size={14} />
-      </Button>
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(p.id)}>
-        <Trash2 size={14} />
-      </Button>
-    </div>
+    new Date(p.created_at).toLocaleDateString()
   ]);
 
   return (

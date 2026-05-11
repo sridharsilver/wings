@@ -90,18 +90,14 @@ function TestimonialsPage() {
     fetchTestimonials();
   }
 
-  const columns = ["Client", "Company", "Rating", "Status", "Actions"];
+  const columns = ["Client", "Company", "Rating", "Status"];
   const rows = testimonials.map(t => [
     <div className="font-medium" key={t.id}>{t.name}</div>,
     t.company,
     <Stars key={`r-${t.id}`} n={t.rating} />,
     <StatusPill key={`s-${t.id}`} tone={t.status === "approved" ? "green" : "amber"}>
       {t.status === "approved" ? "Approved" : "Pending"}
-    </StatusPill>,
-    <div className="flex gap-1" key={`a-${t.id}`} onClick={(e) => e.stopPropagation()}>
-      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(t)}><Edit2 size={14} /></Button>
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(t.id)}><Trash2 size={14} /></Button>
-    </div>
+    </StatusPill>
   ]);
 
   return (

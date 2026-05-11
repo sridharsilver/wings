@@ -111,7 +111,7 @@ function BlogPage() {
     fetchPosts();
   }
 
-  const columns = ["Title", "Category", "Status", "Home", "Date", "Actions"];
+  const columns = ["Title", "Category", "Status", "Home", "Date"];
   const rows = posts.map(p => [
     <div className="font-medium" key={p.id}>{p.title}</div>,
     p.category,
@@ -121,11 +121,7 @@ function BlogPage() {
     <div key={`f-${p.id}`} className="flex justify-center">
       {p.is_featured ? <Star size={16} className="text-yellow-500 fill-yellow-500" /> : <Star size={16} className="text-muted-foreground/30" />}
     </div>,
-    new Date(p.created_at).toLocaleDateString(),
-    <div className="flex gap-1" key={`a-${p.id}`} onClick={(e) => e.stopPropagation()}>
-      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(p)}><Edit2 size={14} /></Button>
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(p.id)}><Trash2 size={14} /></Button>
-    </div>
+    new Date(p.created_at).toLocaleDateString()
   ]);
 
   return (

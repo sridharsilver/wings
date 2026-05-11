@@ -86,18 +86,14 @@ function ServicesPage() {
     fetchServices();
   }
 
-  const columns = ["Service", "Category", "Status", "Price", "Actions"];
+  const columns = ["Service", "Category", "Status", "Price"];
   const rows = services.map(s => [
     <div className="font-medium" key={s.id}>{s.title}</div>,
     s.category,
     <StatusPill key={`s-${s.id}`} tone={s.status === "live" ? "green" : "amber"}>
       {s.status === "live" ? "Live" : "Draft"}
     </StatusPill>,
-    s.price,
-    <div className="flex gap-1" key={`a-${s.id}`} onClick={(e) => e.stopPropagation()}>
-      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(s)}><Edit2 size={14} /></Button>
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(s.id)}><Trash2 size={14} /></Button>
-    </div>
+    s.price
   ]);
 
   return (
