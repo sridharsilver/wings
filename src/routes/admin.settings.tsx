@@ -20,7 +20,8 @@ import {
   Map as MapIcon,
   Home as HomeIcon,
   Phone as PhoneIcon,
-  ChevronRight
+  Globe,
+  Database
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
@@ -30,6 +31,7 @@ import {
   AccordionItem, 
   AccordionTrigger 
 } from "@/components/ui/accordion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
@@ -46,20 +48,26 @@ interface VisibilitySettings {
   show_testimonials: boolean;
   show_enquiry_form: boolean;
   show_contact_map: boolean;
+  whatsapp_number: string;
+  whatsapp_message: string;
+  studio_address: string;
+  contact_phone: string;
+  contact_email: string;
+  working_hours: string;
 }
 
-const SETTING_GROUPS = [
+const VISIBILITY_GROUPS = [
   {
     id: 'global',
-    label: 'Global & AI',
-    icon: Settings,
+    label: 'Global Features',
+    icon: Globe,
     items: [
       { id: 'show_chatbot', label: 'AI Chatbot', description: 'Show/hide the AI concierge bot on all pages', icon: MessageSquare },
     ]
   },
   {
     id: 'home',
-    label: 'Home Page',
+    label: 'Home Page Sections',
     icon: HomeIcon,
     items: [
       { id: 'show_portfolio', label: 'Portfolio Section', description: 'Display your creative work gallery', icon: ImageIcon },
@@ -71,7 +79,7 @@ const SETTING_GROUPS = [
   },
   {
     id: 'contact',
-    label: 'Contact Page',
+    label: 'Contact Page Features',
     icon: PhoneIcon,
     items: [
       { id: 'show_enquiry_form', label: 'Enquiry Forms', description: 'Allow users to send business enquiries', icon: MessageSquare },
@@ -176,11 +184,11 @@ function AdminSettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Site Settings</h1>
-          <p className="text-muted-foreground mt-1">Manage global visibility and frontend feature toggles.</p>
+          <p className="text-muted-foreground mt-1">Manage global visibility and site-wide information.</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -208,168 +216,203 @@ function AdminSettingsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <Card className="border-none shadow-xl bg-surface/50 backdrop-blur-xl overflow-hidden">
-            <CardHeader className="pb-0">
-              <div className="flex items-center gap-2 text-primary">
-                <Eye size={20} />
-                <CardTitle className="text-xl">Frontend Visibility</CardTitle>
-              </div>
-              <CardDescription>Control which sections are visible to your visitors.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <Accordion type="single" collapsible className="w-full">
-                {SETTING_GROUPS.map((group) => (
-                  <AccordionItem key={group.id} value={group.id} className="border-b-0 mb-4 bg-foreground/5 rounded-2xl overflow-hidden">
-                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-foreground/5 transition-colors group">
-                      <div className="flex items-center gap-3 text-left">
-                        <div className="p-2 rounded-xl bg-background text-primary">
-                          <group.icon size={18} />
+      <Tabs defaultValue="visibility" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2 mb-8 bg-surface/50 p-1 rounded-2xl border border-border/50">
+          <TabsTrigger value="visibility" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Eye size={16} />
+            Visibility
+          </TabsTrigger>
+          <TabsTrigger value="data" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Database size={16} />
+            Site Info
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="visibility" className="space-y-6 focus-visible:outline-none">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="border-none shadow-xl bg-surface/50 backdrop-blur-xl overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Eye size={20} className="text-primary" />
+                    Frontend Visibility
+                  </CardTitle>
+                  <CardDescription>Toggle major website components on or off.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <Accordion type="single" collapsible className="w-full">
+                    {VISIBILITY_GROUPS.map((group) => (
+                      <AccordionItem key={group.id} value={group.id} className="border-b-0 mb-4 bg-foreground/5 rounded-2xl overflow-hidden">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-foreground/5 transition-colors group">
+                          <div className="flex items-center gap-3 text-left">
+                            <div className="p-2 rounded-xl bg-background text-primary">
+                              <group.icon size={18} />
+                            </div>
+                            <span className="font-bold text-base">{group.label}</span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-4 pt-2">
+                          <div className="space-y-4">
+                            {group.items.map((item) => {
+                              const isVisible = settings[item.id as keyof VisibilitySettings];
+                              return (
+                                <div 
+                                  key={item.id} 
+                                  className={cn(
+                                    "flex items-center justify-between py-3 rounded-xl px-4 transition-all duration-300",
+                                    isVisible ? "bg-background shadow-sm border border-border/50" : "bg-transparent opacity-60"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                      "p-2 rounded-lg transition-all duration-500",
+                                      isVisible ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                                    )}>
+                                      <item.icon size={18} />
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-bold tracking-tight">{item.label}</p>
+                                      <p className="text-[10px] text-muted-foreground leading-tight">{item.description}</p>
+                                    </div>
+                                  </div>
+                                  <Switch 
+                                    checked={isVisible}
+                                    onCheckedChange={() => handleToggle(item.id as keyof VisibilitySettings)}
+                                    className="data-[state=checked]:bg-primary scale-90"
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="space-y-6">
+              <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-purple-500/5 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-lg">Visibility Tips</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground leading-relaxed">
+                  Hiding sections can help you clean up the page during maintenance or if a specific feature is temporarily unavailable.
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="data" className="space-y-6 focus-visible:outline-none">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="border-none shadow-xl bg-surface/50 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Database size={20} className="text-primary" />
+                    Site Information
+                  </CardTitle>
+                  <CardDescription>Update phone numbers, address and other site-wide data.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  {/* WhatsApp Group */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold flex items-center gap-2 text-primary">
+                      <MessageSquare size={16} />
+                      WhatsApp Business
+                    </h3>
+                    <div className="grid gap-6 p-6 rounded-2xl bg-foreground/5 border border-border/50">
+                      <div className="space-y-2">
+                        <Label htmlFor="whatsapp_number" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">WhatsApp Number</Label>
+                        <Input 
+                          id="whatsapp_number"
+                          value={settings.whatsapp_number}
+                          onChange={(e) => handleValueChange('whatsapp_number', e.target.value)}
+                          onBlur={handleSave}
+                          className="rounded-xl border-none bg-background focus-visible:ring-primary"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="whatsapp_message" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Default Message</Label>
+                        <Textarea 
+                          id="whatsapp_message"
+                          value={settings.whatsapp_message}
+                          onChange={(e) => handleValueChange('whatsapp_message', e.target.value)}
+                          onBlur={handleSave}
+                          className="rounded-xl border-none bg-background focus-visible:ring-primary min-h-[100px] resize-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contact Info Group */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold flex items-center gap-2 text-primary">
+                      <PhoneIcon size={16} />
+                      Contact Details
+                    </h3>
+                    <div className="grid gap-6 p-6 rounded-2xl bg-foreground/5 border border-border/50">
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="contact_phone" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Studio Phone</Label>
+                          <Input 
+                            id="contact_phone"
+                            value={settings.contact_phone}
+                            onChange={(e) => handleValueChange('contact_phone', e.target.value)}
+                            onBlur={handleSave}
+                            className="rounded-xl border-none bg-background"
+                          />
                         </div>
-                        <span className="font-bold text-base">{group.label}</span>
+                        <div className="space-y-2">
+                          <Label htmlFor="contact_email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Studio Email</Label>
+                          <Input 
+                            id="contact_email"
+                            value={settings.contact_email}
+                            onChange={(e) => handleValueChange('contact_email', e.target.value)}
+                            onBlur={handleSave}
+                            className="rounded-xl border-none bg-background"
+                          />
+                        </div>
                       </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-6 pb-4 pt-2">
-                      <div className="space-y-4">
-                        {group.id === 'global' && (
-                          <div className="mb-6 p-4 rounded-xl bg-background border border-border/50 space-y-6">
-                            <div className="space-y-2">
-                              <Label htmlFor="whatsapp_number" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">WhatsApp Contact Number</Label>
-                              <div className="flex gap-2">
-                                <Input 
-                                  id="whatsapp_number"
-                                  value={settings.whatsapp_number}
-                                  onChange={(e) => handleValueChange('whatsapp_number', e.target.value)}
-                                  onBlur={handleSave}
-                                  placeholder="e.g. 919951979988"
-                                  className="rounded-xl border-none bg-foreground/5 focus-visible:ring-primary"
-                                />
-                              </div>
-                              <p className="text-[10px] text-muted-foreground italic px-1">Include country code without + (e.g. 91 for India)</p>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="whatsapp_message" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Default Chat Message</Label>
-                              <Textarea 
-                                id="whatsapp_message"
-                                value={settings.whatsapp_message}
-                                onChange={(e) => handleValueChange('whatsapp_message', e.target.value)}
-                                onBlur={handleSave}
-                                placeholder="Write your default greeting here..."
-                                className="rounded-xl border-none bg-foreground/5 focus-visible:ring-primary min-h-[100px] resize-none"
-                              />
-                              <p className="text-[10px] text-muted-foreground italic px-1">This message will be pre-filled when a user starts a chat.</p>
-                            </div>
-                          </div>
-                        )}
-                        {group.id === 'contact' && (
-                          <div className="mb-6 p-4 rounded-xl bg-background border border-border/50 space-y-4">
-                            <div className="grid sm:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="contact_phone" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Studio Phone</Label>
-                                <Input 
-                                  id="contact_phone"
-                                  value={settings.contact_phone}
-                                  onChange={(e) => handleValueChange('contact_phone', e.target.value)}
-                                  onBlur={handleSave}
-                                  className="rounded-xl border-none bg-foreground/5"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="contact_email" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Studio Email</Label>
-                                <Input 
-                                  id="contact_email"
-                                  value={settings.contact_email}
-                                  onChange={(e) => handleValueChange('contact_email', e.target.value)}
-                                  onBlur={handleSave}
-                                  className="rounded-xl border-none bg-foreground/5"
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="studio_address" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Studio Address</Label>
-                              <Input 
-                                id="studio_address"
-                                value={settings.studio_address}
-                                onChange={(e) => handleValueChange('studio_address', e.target.value)}
-                                onBlur={handleSave}
-                                className="rounded-xl border-none bg-foreground/5"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="working_hours" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Working Hours</Label>
-                              <Input 
-                                id="working_hours"
-                                value={settings.working_hours}
-                                onChange={(e) => handleValueChange('working_hours', e.target.value)}
-                                onBlur={handleSave}
-                                className="rounded-xl border-none bg-foreground/5"
-                              />
-                            </div>
-                          </div>
-                        )}
-                        {group.items.map((item) => {
-                          const isVisible = settings[item.id as keyof VisibilitySettings];
-                          return (
-                            <div 
-                              key={item.id} 
-                              className={cn(
-                                "flex items-center justify-between py-3 rounded-xl px-4 transition-all duration-300",
-                                isVisible ? "bg-background shadow-sm border border-border/50" : "bg-transparent opacity-60"
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={cn(
-                                  "p-2 rounded-lg transition-all duration-500",
-                                  isVisible ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                                )}>
-                                  <item.icon size={18} />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-bold tracking-tight">{item.label}</p>
-                                  <p className="text-[10px] text-muted-foreground leading-tight">{item.description}</p>
-                                </div>
-                              </div>
-                              <Switch 
-                                checked={isVisible}
-                                onCheckedChange={() => handleToggle(item.id as keyof VisibilitySettings)}
-                                className="data-[state=checked]:bg-primary scale-90"
-                              />
-                            </div>
-                          );
-                        })}
+                      <div className="space-y-2">
+                        <Label htmlFor="studio_address" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Studio Address</Label>
+                        <Input 
+                          id="studio_address"
+                          value={settings.studio_address}
+                          onChange={(e) => handleValueChange('studio_address', e.target.value)}
+                          onBlur={handleSave}
+                          className="rounded-xl border-none bg-background"
+                        />
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-purple-500/5 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Settings size={18} />
-                Quick Info
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-              <p>
-                Grouped settings allow you to manage your studio website with precision.
-              </p>
-              <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-medium">
-                <strong>Tip:</strong> You can hide the map if you are working remotely or shifting locations.
-              </div>
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium">
-                <strong>Real-time:</strong> All changes are applied instantly to the live site.
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="working_hours" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Working Hours</Label>
+                        <Input 
+                          id="working_hours"
+                          value={settings.working_hours}
+                          onChange={(e) => handleValueChange('working_hours', e.target.value)}
+                          onBlur={handleSave}
+                          className="rounded-xl border-none bg-background"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="space-y-6">
+              <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-purple-500/5 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-lg">Data Management</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground leading-relaxed">
+                  All site info updates are saved automatically when you click out of an input field. Changes reflect instantly on your live website.
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
