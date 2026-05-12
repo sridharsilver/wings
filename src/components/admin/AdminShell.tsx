@@ -25,6 +25,7 @@ const NAV_GROUPS = [
     label: "System",
     items: [
       { to: "/admin/users", label: "User Management", icon: Shield, permission: "users" },
+      { to: "/admin/settings", label: "Site Settings", icon: Settings, permission: "settings" },
       { to: "/admin/profile", label: "Profile Settings", icon: Settings },
       { to: "/admin/style-guide", label: "Style Guide", icon: Palette, permission: "style-guide" },
     ]

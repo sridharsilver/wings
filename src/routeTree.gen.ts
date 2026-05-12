@@ -25,6 +25,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTestimonialsRouteImport } from './routes/admin.testimonials'
 import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as AdminStyleGuideRouteImport } from './routes/admin.style-guide'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminPortfolioRouteImport } from './routes/admin.portfolio'
@@ -111,6 +112,11 @@ const AdminStyleGuideRoute = AdminStyleGuideRouteImport.update({
   path: '/style-guide',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminServicesRoute = AdminServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/style-guide': typeof AdminStyleGuideRoute
   '/admin/team': typeof AdminTeamRoute
   '/admin/testimonials': typeof AdminTestimonialsRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/style-guide': typeof AdminStyleGuideRoute
   '/admin/team': typeof AdminTeamRoute
   '/admin/testimonials': typeof AdminTestimonialsRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/style-guide': typeof AdminStyleGuideRoute
   '/admin/team': typeof AdminTeamRoute
   '/admin/testimonials': typeof AdminTestimonialsRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/admin/portfolio'
     | '/admin/profile'
     | '/admin/services'
+    | '/admin/settings'
     | '/admin/style-guide'
     | '/admin/team'
     | '/admin/testimonials'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/admin/portfolio'
     | '/admin/profile'
     | '/admin/services'
+    | '/admin/settings'
     | '/admin/style-guide'
     | '/admin/team'
     | '/admin/testimonials'
@@ -266,6 +277,7 @@ export interface FileRouteTypes {
     | '/admin/portfolio'
     | '/admin/profile'
     | '/admin/services'
+    | '/admin/settings'
     | '/admin/style-guide'
     | '/admin/team'
     | '/admin/testimonials'
@@ -401,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminStyleGuideRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/services': {
       id: '/admin/services'
       path: '/services'
@@ -445,6 +464,7 @@ interface AdminRouteChildren {
   AdminPortfolioRoute: typeof AdminPortfolioRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminServicesRoute: typeof AdminServicesRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStyleGuideRoute: typeof AdminStyleGuideRoute
   AdminTeamRoute: typeof AdminTeamRoute
   AdminTestimonialsRoute: typeof AdminTestimonialsRoute
@@ -458,6 +478,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPortfolioRoute: AdminPortfolioRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminServicesRoute: AdminServicesRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminStyleGuideRoute: AdminStyleGuideRoute,
   AdminTeamRoute: AdminTeamRoute,
   AdminTestimonialsRoute: AdminTestimonialsRoute,

@@ -5,6 +5,8 @@ import { MapPin, Phone, Mail, Clock, MessageCircle, Instagram, Facebook, Linkedi
 import { SiteLayout } from "@/components/site/Layout";
 import { Section } from "@/components/site/Section";
 import { PageHero } from "@/components/site/PageHero";
+import { supabase } from "@/lib/supabase";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -18,9 +20,8 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
 
-import { supabase } from "@/lib/supabase";
-
 function ContactPage() {
+  const { settings } = useSiteSettings();
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showChoice, setShowChoice] = useState(false);
@@ -74,7 +75,17 @@ function ContactPage() {
       <Section>
         <div className="grid lg:grid-cols-5 gap-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="lg:col-span-3 rounded-3xl glass shadow-elegant p-8 flex flex-col">
-            {sent ? (
+            {!settings.show_enquiry_form ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-12 min-h-[400px] text-center">
+                <div className="size-16 rounded-full bg-amber-500/10 grid place-items-center text-amber-500 mb-6"><Clock size={24} /></div>
+                <h3 className="text-2xl font-bold mb-3">Enquiries Temporarily Closed</h3>
+                <p className="text-muted-foreground max-w-sm">We are currently at full capacity and not taking new projects. Please check back later or reach out via email for urgent matters.</p>
+                <div className="mt-8 p-4 rounded-2xl bg-surface/50 border border-border">
+                  <p className="text-sm font-medium">Direct Email</p>
+                  <a href="mailto:hello@wingsgraphics.in" className="text-brand font-bold">hello@wingsgraphics.in</a>
+                </div>
+              </div>
+            ) : sent ? (
               <div className="flex-1 flex flex-col items-center justify-center py-12 animate-in fade-in zoom-in duration-500 min-h-[400px]">
                 <div className="size-16 rounded-full bg-gradient-brand grid place-items-center text-brand-foreground shadow-glow mb-6"><Send size={24} /></div>
                 <h3 className="text-3xl font-bold text-gradient mb-3">Thanks — message received!</h3>

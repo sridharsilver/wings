@@ -16,6 +16,7 @@ import { SplashScreen } from "@/components/ui/SplashScreen";
 import { supabase } from "@/lib/supabase";
 import { ChatBot } from "@/components/chat/ChatBot";
 import { WhatsAppButton } from "@/components/chat/WhatsAppButton";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 import appCss from "../styles.css?url";
 
@@ -139,12 +140,15 @@ function RootComponent() {
     }
   }, [pathname, navigate]);
 
+  const { settings } = useSiteSettings();
+  const isAdmin = pathname.startsWith("/admin") || pathname === "/login";
+
   return (
     <QueryClientProvider client={queryClient}>
       {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       <Outlet />
-      <ChatBot />
-      <WhatsAppButton />
+      {!isAdmin && settings.show_chatbot && <ChatBot />}
+      {!isAdmin && settings.show_enquiry_form && <WhatsAppButton />}
       <Toaster />
     </QueryClientProvider>
   );

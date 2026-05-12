@@ -6,6 +6,7 @@ import { SiteLayout } from "@/components/site/Layout";
 import { Section, SectionHeader } from "@/components/site/Section";
 import { supabase } from "@/lib/supabase";
 import { HomeHero } from "@/components/site/HomeHero";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,75 +49,84 @@ const testimonials = [
 
 
 function HomePage() {
+  const { settings } = useSiteSettings();
   const [featured, setFeatured] = useState<any[]>([]);
   const [team, setTeam] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
 
   useEffect(() => {
     async function load() {
-      const { data: pData } = await supabase
-        .from("portfolio")
-        .select("*")
-        .eq("featured", true)
-        .limit(6);
-      if (pData) setFeatured(pData);
+      if (settings.show_portfolio) {
+        const { data: pData } = await supabase
+          .from("portfolio")
+          .select("*")
+          .eq("featured", true)
+          .limit(6);
+        if (pData) setFeatured(pData);
+      }
 
-      const { data: tData } = await supabase
-        .from("team")
-        .select("*")
-        .eq("is_active", true)
-        .order("order_index", { ascending: true });
-      if (tData) setTeam(tData);
+      if (settings.show_team) {
+        const { data: tData } = await supabase
+          .from("team")
+          .select("*")
+          .eq("is_active", true)
+          .order("order_index", { ascending: true });
+        if (tData) setTeam(tData);
+      }
 
-      const { data: bData } = await supabase
-        .from("blog")
-        .select("*")
-        .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(3);
-      if (bData) setPosts(bData);
+      if (settings.show_blog) {
+        const { data: bData } = await supabase
+          .from("blog")
+          .select("*")
+          .order("is_featured", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(3);
+        if (bData) setPosts(bData);
+      }
     }
     load();
-  }, []);
+  }, [settings]);
 
   return (
     <SiteLayout>
       <HomeHero />
 
       {/* SERVICES */}
-      <Section>
-        <SectionHeader eyebrow="What we do" title="Services that span print & pixel" subtitle="A complete creative studio under one roof." />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {services.map((s, i) => (
-            <motion.div
-              key={s.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group relative p-8 rounded-3xl glass hover:bg-white/[0.06] transition shadow-elegant overflow-hidden flex flex-col h-full"
-            >
-              <div className="absolute -top-12 -right-12 size-40 rounded-full bg-gradient-brand opacity-0 group-hover:opacity-20 blur-2xl transition-opacity" />
-              <div className="flex-1">
-                <div className="size-12 grid place-items-center rounded-xl bg-gradient-brand text-brand-foreground mb-6 shadow-glow">
-                  <s.icon size={22} />
+      {settings.show_services && (
+        <Section>
+          <SectionHeader eyebrow="What we do" title="Services that span print & pixel" subtitle="A complete creative studio under one roof." />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {services.map((s, i) => (
+              <motion.div
+                key={s.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group relative p-8 rounded-3xl glass hover:bg-white/[0.06] transition shadow-elegant overflow-hidden flex flex-col h-full"
+              >
+                <div className="absolute -top-12 -right-12 size-40 rounded-full bg-gradient-brand opacity-0 group-hover:opacity-20 blur-2xl transition-opacity" />
+                <div className="flex-1">
+                  <div className="size-12 grid place-items-center rounded-xl bg-gradient-brand text-brand-foreground mb-6 shadow-glow">
+                    <s.icon size={22} />
+                  </div>
+                  <h3 className="text-xl font-bold">{s.title}</h3>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                 </div>
-                <h3 className="text-xl font-bold">{s.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-              </div>
 
-              <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-                <Link to="/services" className="inline-flex items-center gap-1 text-sm font-medium text-brand hover:gap-2 transition-all">
-                  Learn more <ArrowRight size={14} />
-                </Link>
-                <Link to="/contact" className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground hover:text-brand transition">
-                  Get a quote
-                </Link>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </Section>
+                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                  <Link to="/services" className="inline-flex items-center gap-1 text-sm font-medium text-brand hover:gap-2 transition-all">
+                    Learn more <ArrowRight size={14} />
+                  </Link>
+                  <Link to="/contact" className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground hover:text-brand transition">
+                    Get a quote
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* WHY US */}
       <Section>
@@ -216,37 +226,39 @@ function HomePage() {
       </Section>
 
       {/* PORTFOLIO PREVIEW */}
-      <Section>
-        <SectionHeader eyebrow="Selected work" title="A glimpse of recent projects" />
-        <div className="flex flex-wrap justify-center gap-5">
-          {featured.map((p, i) => (
-            <motion.div
-              key={p.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              className="group relative aspect-[4/3] rounded-2xl overflow-hidden glass shadow-elegant w-full sm:w-[calc(50%-1.25rem)] lg:w-[calc(33.333%-1.25rem)] max-w-[400px]"
-            >
-              <img
-                src={p.image_url}
-                alt={p.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-80 transition" />
-              <div className="absolute bottom-6 left-6 right-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition duration-300">
-                <div className="text-[10px] text-brand-purple uppercase tracking-[0.2em] font-bold mb-1">{p.category}</div>
-                <div className="font-bold text-xl leading-tight">{p.title}</div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <div className="mt-10 text-center">
-          <Link to="/portfolio" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass hover:bg-white/10 transition">
-            View all work <ArrowRight size={18} />
-          </Link>
-        </div>
-      </Section>
+      {settings.show_portfolio && featured.length > 0 && (
+        <Section>
+          <SectionHeader eyebrow="Selected work" title="A glimpse of recent projects" />
+          <div className="flex flex-wrap justify-center gap-5">
+            {featured.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06 }}
+                className="group relative aspect-[4/3] rounded-2xl overflow-hidden glass shadow-elegant w-full sm:w-[calc(50%-1.25rem)] lg:w-[calc(33.333%-1.25rem)] max-w-[400px]"
+              >
+                <img
+                  src={p.image_url}
+                  alt={p.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-80 transition" />
+                <div className="absolute bottom-6 left-6 right-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition duration-300">
+                  <div className="text-[10px] text-brand-purple uppercase tracking-[0.2em] font-bold mb-1">{p.category}</div>
+                  <div className="font-bold text-xl leading-tight">{p.title}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link to="/portfolio" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass hover:bg-white/10 transition">
+              View all work <ArrowRight size={18} />
+            </Link>
+          </div>
+        </Section>
+      )}
 
       {/* PROCESS */}
       <Section>
@@ -270,7 +282,7 @@ function HomePage() {
       </Section>
 
       {/* TEAM SECTION */}
-      {team.length > 0 && (
+      {settings.show_team && team.length > 0 && (
         <Section>
           <SectionHeader eyebrow="The experts" title="Meet our creative crew" subtitle="Specialists in print, digital and brand strategy." />
           <div className="flex flex-wrap justify-center gap-5">
@@ -299,7 +311,7 @@ function HomePage() {
       )}
 
       {/* BLOG PREVIEW */}
-      {posts.length > 0 && (
+      {settings.show_blog && posts.length > 0 && (
         <Section>
           <SectionHeader eyebrow="Insights" title="Latest from our studio" />
           <div className="flex flex-wrap justify-center gap-6">
