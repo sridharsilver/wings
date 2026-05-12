@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ArrowRight, Mic, MicOff } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ArrowRight, Mic, MicOff, Volume2, VolumeX, Volume1 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,6 +15,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  lang?: string;
 }
 
 export const ChatBot: React.FC = () => {
@@ -30,8 +31,89 @@ export const ChatBot: React.FC = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    // Use a more reliable notification sound (Base64 for a short pleasant 'pop')
+    const popSound = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAP8A/wD/AA=="; // Simple pop
+    audioRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"); // Better source
+    audioRef.current.load();
+  }, []);
+
+  const speak = (text: string, lang?: string) => {
+    if (isMuted || !('speechSynthesis' in window)) return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    // Comprehensive markdown and URL cleaning for natural speech
+    const cleanText = text
+      .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Keep link text, remove URL
+      .replace(/[*_#`~>]/g, '') // Remove markdown symbols
+      .replace(/\s+/g, ' ') // Collapse multiple spaces
+      .trim();
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = lang || 'en-US';
+    
+    const isTelugu = utterance.lang.startsWith('te');
+    utterance.rate = isTelugu ? 0.9 : 0.95; // Telugu sounds better slightly slower
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    const getBestVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length === 0) return null;
+
+      // Filter by language first
+      const langPrefix = utterance.lang.split('-')[0];
+      const langVoices = voices.filter(v => v.lang.startsWith(langPrefix));
+      
+      if (langVoices.length > 0) {
+        // Sort priority: Google/Premium > Named Voices > Others
+        return langVoices.sort((a, b) => {
+          const score = (v: SpeechSynthesisVoice) => {
+            let s = 0;
+            if (v.name.includes('Google') || v.name.includes('Premium') || v.name.includes('Natural')) s += 10;
+            if (v.name.includes('Female') || v.name.includes('Vani') || v.name.includes('Heera')) s += 5; // Common Indian voice names
+            return s;
+          };
+          return score(b) - score(a);
+        })[0];
+      }
+
+      // Fallback for Indian English or generic if specific lang not found
+      return voices.find(v => v.name.includes('Google') || v.name.includes('Female')) || voices[0];
+    };
+
+    const playUtterance = () => {
+      const voice = getBestVoice();
+      if (voice) utterance.voice = voice;
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      speechRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    // If voices are not yet loaded, wait for them
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        playUtterance();
+        window.speechSynthesis.onvoiceschanged = null;
+      };
+    } else {
+      playUtterance();
+    }
+  };
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -108,9 +190,21 @@ export const ChatBot: React.FC = () => {
         role: "assistant",
         content: data?.reply || "I'm having trouble connecting to my brain. Please try again.",
         timestamp: new Date(),
+        lang: data?.lang
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+      
+      // Play notification sound and Speak
+      if (!isMuted) {
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.play().catch(err => console.error("Error playing sound:", err));
+        }
+        
+        // Speak the response in the detected language
+        speak(assistantMessage.content, assistantMessage.lang);
+      }
     } catch (error: any) {
       console.error("Chat error:", error);
       const errorMessage: Message = {
@@ -206,14 +300,33 @@ export const ChatBot: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => setIsOpen(false)}
-                    className="rounded-full h-9 w-9 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                  >
-                    <X size={20} className="text-muted-foreground" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => {
+                        if (isSpeaking) {
+                          window.speechSynthesis.cancel();
+                          setIsSpeaking(false);
+                        }
+                        setIsMuted(!isMuted);
+                      }}
+                      className={cn(
+                        "rounded-full h-8 w-8 transition-all",
+                        isMuted ? "text-muted-foreground/50" : "text-primary"
+                      )}
+                    >
+                      {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => setIsOpen(false)}
+                      className="rounded-full h-9 w-9 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                    >
+                      <X size={20} className="text-muted-foreground" />
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -243,7 +356,7 @@ export const ChatBot: React.FC = () => {
                       )}
                       <div className="flex flex-col gap-1.5 max-w-[85%]">
                         <div className={cn(
-                          "rounded-2xl px-4 py-3 text-sm shadow-sm prose prose-sm dark:prose-invert prose-p:my-0 prose-headings:my-1 prose-a:font-bold prose-a:underline transition-all",
+                          "rounded-2xl px-4 py-3 text-sm shadow-sm prose prose-sm dark:prose-invert prose-p:my-2 prose-headings:my-2 prose-a:font-bold prose-a:underline transition-all",
                           message.role === "user" 
                             ? "bg-primary text-primary-foreground rounded-tr-none prose-p:text-primary-foreground prose-strong:text-primary-foreground prose-headings:text-primary-foreground prose-a:text-white shadow-primary/20" 
                             : "bg-white/60 dark:bg-zinc-800/40 border border-black/5 dark:border-white/5 rounded-tl-none message-glass"

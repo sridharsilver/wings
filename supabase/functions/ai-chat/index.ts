@@ -36,7 +36,12 @@ serve(async (req) => {
     Goal: Guide users to see our work on the portfolio page or start a project on the contact page.
     
     LANGUAGE RULE:
-    Always detect the language of the user's message and respond in that SAME language (e.g., if they ask in Hindi, respond in Hindi; if in Spanish, respond in Spanish). Maintain the same elite and professional tone regardless of the language.`
+    Always detect the language of the user's message and respond in that SAME language (e.g., if they ask in Hindi, respond in Hindi; if in Spanish, respond in Spanish).
+    
+    RESPONSE FORMAT:
+    You MUST return your response as a JSON object with two fields:
+    1. "reply": Your actual response text.
+    2. "lang": The BCP-47 language tag of the response (e.g., "en-US", "hi-IN", "te-IN", "es-ES", "fr-FR", "de-DE", "zh-CN").`
 
     // Filter history to ensure it alternates and starts with 'user'
     // We skip the initial 'assistant' welcome message if it's the first one
@@ -69,11 +74,14 @@ serve(async (req) => {
       contents: formattedHistory,
       system_instruction: {
         parts: [{ text: systemPrompt }]
+      },
+      generationConfig: {
+        response_mime_type: "application/json"
       }
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -86,7 +94,8 @@ serve(async (req) => {
     if (!response.ok) {
       console.error('Gemini API Error:', JSON.stringify(data))
       return new Response(JSON.stringify({ 
-        reply: `API Error: ${data.error?.message || "I'm having trouble thinking right now. Please try again."}` 
+        reply: "I'm catching my breath! I've been helping so many people lately that I need a tiny break. Please try asking again in about a minute.",
+        lang: "en-US"
       }), { headers: corsHeaders, status: 200 })
     }
 
@@ -101,7 +110,16 @@ serve(async (req) => {
       }), { headers: corsHeaders, status: 200 })
     }
 
-    return new Response(JSON.stringify({ reply }), { headers: corsHeaders, status: 200 })
+    try {
+      const parsed = JSON.parse(reply)
+      return new Response(JSON.stringify({ 
+        reply: parsed.reply, 
+        lang: parsed.lang || "en-US" 
+      }), { headers: corsHeaders, status: 200 })
+    } catch (e) {
+      // Fallback if AI didn't return valid JSON
+      return new Response(JSON.stringify({ reply, lang: "en-US" }), { headers: corsHeaders, status: 200 })
+    }
   } catch (error) {
     console.error('System Error:', error)
     return new Response(JSON.stringify({ reply: `System Error: ${error.message}` }), { headers: corsHeaders, status: 200 })
