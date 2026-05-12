@@ -33,32 +33,77 @@ serve(async (req) => {
     Never just use brackets like [Contact Page]. Always include the path in parentheses like (/contact).
 
     Context: Wings Design Studio specializes in elite branding, graphic design, web UI/UX, and premium commercial printing.
-    Goal: Guide users to see our work on the portfolio page or start a project on the contact page.`
+    Goal: Guide users to see our work on the portfolio page or start a project on the contact page.
+    
+    LANGUAGE RULE:
+    Always detect the language of the user's message and respond in that SAME language (e.g., if they ask in Hindi, respond in Hindi; if in Spanish, respond in Spanish). Maintain the same elite and professional tone regardless of the language.`
 
-    const contents = [
-      { role: "user", parts: [{ text: systemPrompt }] },
-      { role: "model", parts: [{ text: "Understood. I will use the exact markdown link format for all internal routes." }] },
-      ...(history || []).map((m: any) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }]
-      })),
-      { role: "user", parts: [{ text: message }] }
-    ]
+    // Filter history to ensure it alternates and starts with 'user'
+    // We skip the initial 'assistant' welcome message if it's the first one
+    const formattedHistory = []
+    let lastRole = null
+
+    if (history && history.length > 0) {
+      for (const m of history) {
+        const role = m.role === 'assistant' ? 'model' : 'user'
+        
+        // Skip if same role as last or if history starts with 'model'
+        if (role === lastRole) continue
+        if (formattedHistory.length === 0 && role === 'model') continue
+
+        formattedHistory.push({
+          role,
+          parts: [{ text: m.content }]
+        })
+        lastRole = role
+      }
+    }
+
+    // Add current message
+    formattedHistory.push({
+      role: "user",
+      parts: [{ text: message }]
+    })
+
+    const requestBody = {
+      contents: formattedHistory,
+      system_instruction: {
+        parts: [{ text: systemPrompt }]
+      }
+    }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents })
+        body: JSON.stringify(requestBody)
       }
     )
 
     const data = await response.json()
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response."
+
+    if (!response.ok) {
+      console.error('Gemini API Error:', JSON.stringify(data))
+      return new Response(JSON.stringify({ 
+        reply: `API Error: ${data.error?.message || "I'm having trouble thinking right now. Please try again."}` 
+      }), { headers: corsHeaders, status: 200 })
+    }
+
+    const candidate = data.candidates?.[0]
+    const reply = candidate?.content?.parts?.[0]?.text
+
+    if (!reply) {
+      console.error('No text in response:', JSON.stringify(data))
+      const reason = candidate?.finishReason || data.promptFeedback?.blockReason || "Blocked or empty response"
+      return new Response(JSON.stringify({ 
+        reply: `I'm sorry, I couldn't generate a response. (Reason: ${reason})` 
+      }), { headers: corsHeaders, status: 200 })
+    }
 
     return new Response(JSON.stringify({ reply }), { headers: corsHeaders, status: 200 })
   } catch (error) {
+    console.error('System Error:', error)
     return new Response(JSON.stringify({ reply: `System Error: ${error.message}` }), { headers: corsHeaders, status: 200 })
   }
 })

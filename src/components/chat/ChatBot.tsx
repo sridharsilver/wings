@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ArrowRight } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ArrowRight, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,7 +29,45 @@ export const ChatBot: React.FC = () => {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = navigator.language || 'en-US';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript.trim()) {
+          handleSend(transcript);
+        }
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+    } else {
+      recognitionRef.current?.start();
+      setIsListening(true);
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -274,20 +312,45 @@ export const ChatBot: React.FC = () => {
                 <div className="flex w-full gap-2 items-center relative group">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
                   <Input
-                    placeholder="Type your message..."
+                    placeholder={isListening ? "Listening..." : "Type your message..."}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    className="flex-1 bg-white/50 dark:bg-black/40 border-black/10 dark:border-white/10 focus-visible:ring-primary/50 h-12 pr-14 rounded-2xl relative z-10 backdrop-blur-md transition-all placeholder:text-muted-foreground/50"
+                    className={cn(
+                      "flex-1 bg-white/50 dark:bg-black/40 border-black/10 dark:border-white/10 focus-visible:ring-primary/50 h-12 pr-24 rounded-2xl relative z-10 backdrop-blur-md transition-all placeholder:text-muted-foreground/50",
+                      isListening && "ring-2 ring-primary/50 border-primary"
+                    )}
                   />
-                  <Button 
-                    size="icon" 
-                    onClick={() => handleSend()} 
-                    disabled={!input.trim() || isLoading}
-                    className="absolute right-1.5 h-9 w-9 rounded-xl shadow-xl hover:shadow-primary/30 transition-all active:scale-95 z-20"
-                  >
-                    <Send size={18} />
-                  </Button>
+                  <div className="absolute right-1.5 flex items-center gap-1 z-20">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={toggleListening}
+                      className={cn(
+                        "h-9 w-9 rounded-xl transition-all",
+                        isListening ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" : "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/10"
+                      )}
+                    >
+                      {isListening ? (
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ repeat: Infinity, duration: 1 }}
+                        >
+                          <MicOff size={18} />
+                        </motion.div>
+                      ) : (
+                        <Mic size={18} />
+                      )}
+                    </Button>
+                    <Button 
+                      size="icon" 
+                      onClick={() => handleSend()} 
+                      disabled={!input.trim() || isLoading}
+                      className="h-9 w-9 rounded-xl shadow-xl hover:shadow-primary/30 transition-all active:scale-95"
+                    >
+                      <Send size={18} />
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex items-center justify-center gap-2 opacity-30 grayscale hover:grayscale-0 transition-all">
                   <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Powered by Wings AI</p>
