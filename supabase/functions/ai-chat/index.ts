@@ -69,7 +69,7 @@ serve(async (req) => {
     }
 
     const requestBody = { contents };
-    const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-exp'];
+    const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     let response;
     let data;
     let lastError;
@@ -78,10 +78,8 @@ serve(async (req) => {
     for (const model of models) {
       lastModelTried = model;
       try {
-        // Use v1 for flash/pro, v1beta for 2.0-exp
-        const apiVersion = model.includes('2.0') ? 'v1beta' : 'v1';
         response = await fetch(
-          `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
