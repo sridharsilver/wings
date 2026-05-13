@@ -82,8 +82,8 @@ function PortfolioPage() {
                   alt={p.title} 
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-90 transition" />
-                <div className="absolute bottom-4 left-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition duration-300">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition" />
+                <div className="absolute bottom-4 left-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition duration-300 text-white">
                   <div className="text-[10px] uppercase tracking-widest text-brand-purple font-bold">{p.category}</div>
                   <div className="font-bold mt-1 text-lg leading-tight">{p.title}</div>
                 </div>
@@ -100,7 +100,7 @@ function PortfolioPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setOpen(null)}
-            className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 grid place-items-center bg-black/80 backdrop-blur-sm p-4"
           >
             <div className="relative w-full max-w-4xl flex items-center justify-center gap-4">
               {/* Previous Button */}
@@ -126,7 +126,7 @@ function PortfolioPage() {
               >
                 <div className="aspect-[16/9] relative overflow-hidden">
                   <img src={open.image_url} alt={open.title} className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-40" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-40" />
                 </div>
                 <div className="p-6 md:p-8">
                   <div className="flex items-start justify-between gap-4">
