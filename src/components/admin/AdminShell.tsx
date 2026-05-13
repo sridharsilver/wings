@@ -17,6 +17,7 @@ const NAV_GROUPS = [
       { to: "/admin/services", label: "Services", icon: Briefcase, permission: "services" },
       { to: "/admin/blog", label: "Blog", icon: FileText, permission: "blog" },
       { to: "/admin/enquiries", label: "Enquiries", icon: MessageSquare, badge: "newEnquiriesCount", permission: "enquiries" },
+      { to: "/admin/forms", label: "Form Builder", icon: Globe, permission: "enquiries" },
       { to: "/admin/team", label: "Team", icon: Users, permission: "team" },
       { to: "/admin/testimonials", label: "Testimonials", icon: Star, permission: "testimonials" },
     ]

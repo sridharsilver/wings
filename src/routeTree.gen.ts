@@ -20,6 +20,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as BlogIdRouteImport } from './routes/blog.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTestimonialsRouteImport } from './routes/admin.testimonials'
@@ -29,6 +30,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminPortfolioRouteImport } from './routes/admin.portfolio'
+import { Route as AdminFormsRouteImport } from './routes/admin.forms'
 import { Route as AdminEnquiriesRouteImport } from './routes/admin.enquiries'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 
@@ -87,6 +89,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const FSlugRoute = FSlugRouteImport.update({
+  id: '/f/$slug',
+  path: '/f/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIdRoute = BlogIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -132,6 +139,11 @@ const AdminPortfolioRoute = AdminPortfolioRouteImport.update({
   path: '/portfolio',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFormsRoute = AdminFormsRouteImport.update({
+  id: '/forms',
+  path: '/forms',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminEnquiriesRoute = AdminEnquiriesRouteImport.update({
   id: '/enquiries',
   path: '/enquiries',
@@ -155,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/testimonials': typeof TestimonialsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/enquiries': typeof AdminEnquiriesRoute
+  '/admin/forms': typeof AdminFormsRoute
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/services': typeof AdminServicesRoute
@@ -164,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/admin/testimonials': typeof AdminTestimonialsRoute
   '/admin/users': typeof AdminUsersRoute
   '/blog/$id': typeof BlogIdRoute
+  '/f/$slug': typeof FSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
 }
@@ -177,6 +191,7 @@ export interface FileRoutesByTo {
   '/testimonials': typeof TestimonialsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/enquiries': typeof AdminEnquiriesRoute
+  '/admin/forms': typeof AdminFormsRoute
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/services': typeof AdminServicesRoute
@@ -186,6 +201,7 @@ export interface FileRoutesByTo {
   '/admin/testimonials': typeof AdminTestimonialsRoute
   '/admin/users': typeof AdminUsersRoute
   '/blog/$id': typeof BlogIdRoute
+  '/f/$slug': typeof FSlugRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
 }
@@ -202,6 +218,7 @@ export interface FileRoutesById {
   '/testimonials': typeof TestimonialsRoute
   '/admin/blog': typeof AdminBlogRoute
   '/admin/enquiries': typeof AdminEnquiriesRoute
+  '/admin/forms': typeof AdminFormsRoute
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/services': typeof AdminServicesRoute
@@ -211,6 +228,7 @@ export interface FileRoutesById {
   '/admin/testimonials': typeof AdminTestimonialsRoute
   '/admin/users': typeof AdminUsersRoute
   '/blog/$id': typeof BlogIdRoute
+  '/f/$slug': typeof FSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
 }
@@ -228,6 +246,7 @@ export interface FileRouteTypes {
     | '/testimonials'
     | '/admin/blog'
     | '/admin/enquiries'
+    | '/admin/forms'
     | '/admin/portfolio'
     | '/admin/profile'
     | '/admin/services'
@@ -237,6 +256,7 @@ export interface FileRouteTypes {
     | '/admin/testimonials'
     | '/admin/users'
     | '/blog/$id'
+    | '/f/$slug'
     | '/admin/'
     | '/blog/'
   fileRoutesByTo: FileRoutesByTo
@@ -250,6 +270,7 @@ export interface FileRouteTypes {
     | '/testimonials'
     | '/admin/blog'
     | '/admin/enquiries'
+    | '/admin/forms'
     | '/admin/portfolio'
     | '/admin/profile'
     | '/admin/services'
@@ -259,6 +280,7 @@ export interface FileRouteTypes {
     | '/admin/testimonials'
     | '/admin/users'
     | '/blog/$id'
+    | '/f/$slug'
     | '/admin'
     | '/blog'
   id:
@@ -274,6 +296,7 @@ export interface FileRouteTypes {
     | '/testimonials'
     | '/admin/blog'
     | '/admin/enquiries'
+    | '/admin/forms'
     | '/admin/portfolio'
     | '/admin/profile'
     | '/admin/services'
@@ -283,6 +306,7 @@ export interface FileRouteTypes {
     | '/admin/testimonials'
     | '/admin/users'
     | '/blog/$id'
+    | '/f/$slug'
     | '/admin/'
     | '/blog/'
   fileRoutesById: FileRoutesById
@@ -297,6 +321,7 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   ServicesRoute: typeof ServicesRoute
   TestimonialsRoute: typeof TestimonialsRoute
+  FSlugRoute: typeof FSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -378,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/f/$slug': {
+      id: '/f/$slug'
+      path: '/f/$slug'
+      fullPath: '/f/$slug'
+      preLoaderRoute: typeof FSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$id': {
       id: '/blog/$id'
       path: '/$id'
@@ -441,6 +473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPortfolioRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/forms': {
+      id: '/admin/forms'
+      path: '/forms'
+      fullPath: '/admin/forms'
+      preLoaderRoute: typeof AdminFormsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/enquiries': {
       id: '/admin/enquiries'
       path: '/enquiries'
@@ -461,6 +500,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminBlogRoute: typeof AdminBlogRoute
   AdminEnquiriesRoute: typeof AdminEnquiriesRoute
+  AdminFormsRoute: typeof AdminFormsRoute
   AdminPortfolioRoute: typeof AdminPortfolioRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminServicesRoute: typeof AdminServicesRoute
@@ -475,6 +515,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBlogRoute: AdminBlogRoute,
   AdminEnquiriesRoute: AdminEnquiriesRoute,
+  AdminFormsRoute: AdminFormsRoute,
   AdminPortfolioRoute: AdminPortfolioRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminServicesRoute: AdminServicesRoute,
@@ -510,6 +551,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   ServicesRoute: ServicesRoute,
   TestimonialsRoute: TestimonialsRoute,
+  FSlugRoute: FSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

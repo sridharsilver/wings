@@ -54,6 +54,10 @@ interface VisibilitySettings {
   contact_phone: string;
   contact_email: string;
   working_hours: string;
+  social_instagram: string;
+  social_facebook: string;
+  social_linkedin: string;
+  social_twitter: string;
 }
 
 const VISIBILITY_GROUPS = [
@@ -104,6 +108,10 @@ function AdminSettingsPage() {
     contact_phone: '+91 9951979988',
     contact_email: 'hello@wingsgraphics.in',
     working_hours: 'Mon–Sat · 10:00 — 19:00',
+    social_instagram: 'https://instagram.com/wingsgraphics',
+    social_facebook: 'https://facebook.com/wingsgraphics',
+    social_linkedin: 'https://linkedin.com/company/wingsgraphics',
+    social_twitter: 'https://twitter.com/wingsgraphics',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -384,11 +392,67 @@ function AdminSettingsPage() {
                           value={settings.working_hours}
                           onChange={(e) => handleValueChange('working_hours', e.target.value)}
                           onBlur={handleSave}
-                          className="h-10 md:h-11 rounded-lg md:rounded-xl border-none bg-background"
                         />
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Social Media Group */}
+                  <div className="space-y-3 md:space-y-4">
+                    <h3 className="text-xs md:text-sm font-bold flex items-center gap-2 text-primary px-1">
+                      <Globe size={14} className="md:size-4" />
+                      Social Media Links
+                    </h3>
+                    <div className="grid gap-5 md:gap-6 p-4 md:p-6 rounded-xl md:rounded-2xl bg-foreground/5 border border-border/50">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="social_instagram" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground">Instagram</Label>
+                          <Input 
+                            id="social_instagram"
+                            value={settings.social_instagram}
+                            onChange={(e) => handleValueChange('social_instagram', e.target.value)}
+                            onBlur={handleSave}
+                            placeholder="https://instagram.com/..."
+                            className="h-10 md:h-11 rounded-lg md:rounded-xl border-none bg-background"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="social_facebook" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground">Facebook</Label>
+                          <Input 
+                            id="social_facebook"
+                            value={settings.social_facebook}
+                            onChange={(e) => handleValueChange('social_facebook', e.target.value)}
+                            onBlur={handleSave}
+                            placeholder="https://facebook.com/..."
+                            className="h-10 md:h-11 rounded-lg md:rounded-xl border-none bg-background"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="social_linkedin" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground">LinkedIn</Label>
+                          <Input 
+                            id="social_linkedin"
+                            value={settings.social_linkedin}
+                            onChange={(e) => handleValueChange('social_linkedin', e.target.value)}
+                            onBlur={handleSave}
+                            placeholder="https://linkedin.com/in/..."
+                            className="h-10 md:h-11 rounded-lg md:rounded-xl border-none bg-background"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="social_twitter" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground">Twitter / X</Label>
+                          <Input 
+                            id="social_twitter"
+                            value={settings.social_twitter}
+                            onChange={(e) => handleValueChange('social_twitter', e.target.value)}
+                            onBlur={handleSave}
+                            placeholder="https://twitter.com/..."
+                            className="h-10 md:h-11 rounded-lg md:rounded-xl border-none bg-background"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
 
                   <div className="pt-4">
                     <button 

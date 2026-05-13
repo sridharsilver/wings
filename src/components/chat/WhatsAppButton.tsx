@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -7,14 +7,34 @@ import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export const WhatsAppButton: React.FC = () => {
   const { settings } = useSiteSettings();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show button after scrolling 300px
+      if (window.scrollY > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    // Check initial scroll position
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const phoneNumber = settings.whatsapp_number || "919951979988";
   const message = encodeURIComponent(settings.whatsapp_message || "Hi Wings Design Studio! I'm interested in your services.");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
   return (
     <div className={cn(
-      "fixed bottom-4 md:bottom-6 z-[100] pointer-events-none transition-all duration-500",
-      settings.show_chatbot ? "left-4 md:left-6" : "right-4 md:right-6"
+      "fixed bottom-4 md:bottom-6 z-[100] pointer-events-none transition-all duration-700",
+      settings.show_chatbot ? "left-4 md:left-6" : "right-4 md:right-6",
+      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
     )}>
       <motion.a
         href={whatsappUrl}

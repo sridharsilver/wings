@@ -165,9 +165,10 @@ function ContactPage() {
               <span>→</span>
             </a>
             <div className="flex gap-3">
-              {[Instagram, Facebook, Linkedin, Twitter].map((Icon, i) => (
-                <a key={i} href="#" className="size-10 grid place-items-center rounded-full glass hover:bg-white/10" aria-label="social"><Icon size={16} /></a>
-              ))}
+              <a href={settings.social_instagram} target="_blank" rel="noopener noreferrer" className="size-10 grid place-items-center rounded-full glass hover:bg-white/10 transition-all hover:scale-110" aria-label="instagram"><Instagram size={16} /></a>
+              <a href={settings.social_facebook} target="_blank" rel="noopener noreferrer" className="size-10 grid place-items-center rounded-full glass hover:bg-white/10 transition-all hover:scale-110" aria-label="facebook"><Facebook size={16} /></a>
+              <a href={settings.social_linkedin} target="_blank" rel="noopener noreferrer" className="size-10 grid place-items-center rounded-full glass hover:bg-white/10 transition-all hover:scale-110" aria-label="linkedin"><Linkedin size={16} /></a>
+              <a href={settings.social_twitter} target="_blank" rel="noopener noreferrer" className="size-10 grid place-items-center rounded-full glass hover:bg-white/10 transition-all hover:scale-110" aria-label="twitter"><Twitter size={16} /></a>
             </div>
           </div>
         </div>

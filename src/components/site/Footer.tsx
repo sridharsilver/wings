@@ -36,11 +36,10 @@ export function Footer() {
             From print to pixel — Wings Design Studio crafts premium printing, branding and digital experiences for ambitious brands.
           </p>
           <div className="flex gap-3 mt-5">
-            {[Instagram, Facebook, Linkedin, Twitter].map((Icon, i) => (
-              <a key={i} href="#" className="size-9 grid place-items-center rounded-full glass hover:bg-gradient-brand transition" aria-label="social">
-                <Icon size={16} />
-              </a>
-            ))}
+            <a href={settings.social_instagram} target="_blank" rel="noopener noreferrer" className="size-9 grid place-items-center rounded-full glass hover:bg-gradient-brand transition" aria-label="instagram"><Instagram size={16} /></a>
+            <a href={settings.social_facebook} target="_blank" rel="noopener noreferrer" className="size-9 grid place-items-center rounded-full glass hover:bg-gradient-brand transition" aria-label="facebook"><Facebook size={16} /></a>
+            <a href={settings.social_linkedin} target="_blank" rel="noopener noreferrer" className="size-9 grid place-items-center rounded-full glass hover:bg-gradient-brand transition" aria-label="linkedin"><Linkedin size={16} /></a>
+            <a href={settings.social_twitter} target="_blank" rel="noopener noreferrer" className="size-9 grid place-items-center rounded-full glass hover:bg-gradient-brand transition" aria-label="twitter"><Twitter size={16} /></a>
           </div>
         </div>
         <div>
