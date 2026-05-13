@@ -96,7 +96,7 @@ export function AboutPage() {
             Loading our creative crew...
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="flex flex-wrap justify-center gap-5 w-full">
             {teamData.map((p: any, i: number) => (
               <motion.div 
                 key={p.id} 
@@ -104,7 +104,7 @@ export function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }} 
                 viewport={{ once: true }} 
                 transition={{ delay: i * 0.08 }} 
-                className="rounded-2xl glass p-5 group hover:shadow-glow transition-all duration-300"
+                className="rounded-2xl glass shadow-elegant p-5 group hover:shadow-glow transition-all duration-300 w-full sm:w-[calc(50%-1.25rem)] md:w-[calc(25%-1.25rem)] max-w-[280px]"
               >
                 <div className="aspect-square rounded-xl overflow-hidden bg-surface mb-4">
                   {p.image_url ? (
@@ -113,8 +113,8 @@ export function AboutPage() {
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-surface-elevated"><Users size={32} /></div>
                   )}
                 </div>
-                <div className="font-semibold">{p.name}</div>
-                <div className="text-sm text-muted-foreground">{p.role}</div>
+                <div className="font-semibold text-sm">{p.name}</div>
+                <div className="text-xs text-muted-foreground">{p.role}</div>
               </motion.div>
             ))}
           </div>
