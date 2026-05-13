@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { Link } from "@tanstack/react-router";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 interface Message {
   id: string;
@@ -32,7 +33,17 @@ export const ChatBot: React.FC = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const { settings } = useSiteSettings();
   const [isMuted, setIsMuted] = useState(true);
+  const settingsInitialized = useRef(false);
+
+  useEffect(() => {
+    if (!settingsInitialized.current && settings) {
+      setIsMuted(!settings.chatbot_voice_enabled);
+      settingsInitialized.current = true;
+    }
+  }, [settings]);
+
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [rateLimitCooldown, setRateLimitCooldown] = useState(0); // seconds remaining
   const [queuedMessage, setQueuedMessage] = useState<string | null>(null);

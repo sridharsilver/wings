@@ -21,7 +21,9 @@ import {
   Home as HomeIcon,
   Phone as PhoneIcon,
   Globe,
-  Database
+  Database,
+  VolumeX,
+  Volume2
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
@@ -58,6 +60,7 @@ interface VisibilitySettings {
   social_facebook: string;
   social_linkedin: string;
   social_twitter: string;
+  chatbot_voice_enabled: boolean;
 }
 
 const VISIBILITY_GROUPS = [
@@ -67,6 +70,7 @@ const VISIBILITY_GROUPS = [
     icon: Globe,
     items: [
       { id: 'show_chatbot', label: 'AI Chatbot', description: 'Show/hide the AI concierge bot on all pages', icon: MessageSquare },
+      { id: 'chatbot_voice_enabled', label: 'Chatbot Voice', description: 'Enable AI voice response by default', icon: Volume2 },
     ]
   },
   {
@@ -112,6 +116,7 @@ function AdminSettingsPage() {
     social_facebook: 'https://facebook.com/wingsgraphics',
     social_linkedin: 'https://linkedin.com/company/wingsgraphics',
     social_twitter: 'https://twitter.com/wingsgraphics',
+    chatbot_voice_enabled: false,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

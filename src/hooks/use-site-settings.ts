@@ -20,6 +20,7 @@ export interface VisibilitySettings {
   social_facebook: string;
   social_linkedin: string;
   social_twitter: string;
+  chatbot_voice_enabled: boolean;
 }
 
 const DEFAULT_SETTINGS: VisibilitySettings = {
@@ -41,6 +42,7 @@ const DEFAULT_SETTINGS: VisibilitySettings = {
   social_facebook: 'https://facebook.com/wingsgraphics',
   social_linkedin: 'https://linkedin.com/company/wingsgraphics',
   social_twitter: 'https://twitter.com/wingsgraphics',
+  chatbot_voice_enabled: false,
 };
 
 export function useSiteSettings() {
