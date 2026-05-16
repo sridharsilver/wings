@@ -24,10 +24,10 @@ export const Route = createFileRoute("/")({
 });
 
 const services = [
-  { icon: Printer, title: "Commercial Printing", desc: "Brochures, packaging, stationery, banners — vivid, premium and on-time." },
-  { icon: Palette, title: "Graphic Designing", desc: "Logos, brand identities, marketing collateral and packaging design." },
   { icon: Globe, title: "Website Design", desc: "Modern business, ecommerce and portfolio websites that convert." },
   { icon: Sparkles, title: "Brand Identity", desc: "Strategy, visual systems and guidelines that build trust at scale." },
+  { icon: Palette, title: "Graphic Designing", desc: "Logos, brand identities, marketing collateral and packaging design." },
+  { icon: Printer, title: "Commercial Printing", desc: "Brochures, packaging, stationery, banners — vivid, premium and on-time." },
 ];
 
 const reasons = [

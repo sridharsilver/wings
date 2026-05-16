@@ -41,14 +41,28 @@ function ServicesPage() {
     load();
   }, []);
   
-  // Group services by category
+  // Group services by category and sort them in preferred order
+  const PREFERRED_ORDER = ["Designing", "Digital", "Printing"];
+  
   const categories = Array.from(new Set((data || []).map(s => (s.category || "General").trim())));
-  const groups = categories.map((cat, i) => ({
-    eyebrow: `0${i + 1}`,
-    title: cat,
-    desc: `Premium ${cat.toLowerCase()} services tailored to your brand's needs.`,
-    items: data.filter(s => (s.category || "General").trim() === cat)
-  }));
+  const groups = categories
+    .map((cat) => ({
+      title: cat,
+      desc: `Premium ${cat.toLowerCase()} services tailored to your brand's needs.`,
+      items: data.filter(s => (s.category || "General").trim() === cat)
+    }))
+    .sort((a, b) => {
+      const idxA = PREFERRED_ORDER.indexOf(a.title);
+      const idxB = PREFERRED_ORDER.indexOf(b.title);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.title.localeCompare(b.title);
+    })
+    .map((g, i) => ({
+      ...g,
+      eyebrow: `0${i + 1}`,
+    }));
   return (
     <SiteLayout>
       <PageHero 
