@@ -129,7 +129,7 @@ function ContactPage() {
               </div>
             ) : sent ? (
               <div className="flex-1 flex flex-col items-center justify-center py-12 animate-in fade-in zoom-in duration-500 min-h-[400px]">
-                <div className="size-16 rounded-full bg-gradient-brand grid place-items-center text-brand-foreground shadow-glow mb-6"><Send size={24} /></div>
+                <div className="size-16 rounded-full bg-gradient-brand grid place-items-center text-brand-foreground shadow-glow mb-6"><Send size={24} strokeWidth={1.2} /></div>
                 <h3 className="text-3xl font-bold text-gradient mb-3">Thanks — message received!</h3>
                 <p className="text-muted-foreground text-lg max-w-md mx-auto text-center">We'll get back to you within one business day to discuss your project.</p>
                 <button
@@ -159,10 +159,10 @@ function ContactPage() {
                     }
                   />
                   <div>
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-black ml-1">Service</label>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/70 font-bold ml-1">Service</label>
                     <div className="relative mt-2">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none">
-                        <Briefcase size={18} />
+                        <Briefcase size={18} strokeWidth={1.2} />
                       </div>
                       <ServiceSelector 
                         services={services} 
@@ -180,10 +180,10 @@ function ContactPage() {
                   </motion.div>
                 )}
                 <div>
-                  <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-black ml-1">Message</label>
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/70 font-bold ml-1">Message</label>
                   <div className="relative mt-2">
-                    <div className="absolute left-4 top-4 text-muted-foreground z-10 pointer-events-none">
-                      <FileText size={18} />
+                    <div className="absolute left-4 top-4 text-zinc-500 dark:text-white z-10 pointer-events-none">
+                      <FileText size={18} strokeWidth={1.2} />
                     </div>
                     <textarea 
                       name="message" 
@@ -199,7 +199,7 @@ function ContactPage() {
                   disabled={loading}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-brand text-brand-foreground font-medium shadow-glow hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                 >
-                  {loading ? "Processing..." : "Send Message"} <Send size={16} />
+                  {loading ? "Processing..." : "Send Message"} <Send size={16} strokeWidth={1.2} />
                 </button>
               </form>
             )}
@@ -261,7 +261,7 @@ function ContactPage() {
                   </div>
                 </div>
                 <div className="size-10 rounded-full bg-white/10 flex items-center justify-center group-hover:translate-x-1 transition-transform backdrop-blur-sm border border-white/10">
-                  <span className="text-xl">→</span>
+                  <span className="text-xl font-thin">→</span>
                 </div>
               </a>
 
@@ -294,11 +294,11 @@ function ContactPage() {
 function Field({ label, icon: Icon, prefix, ...props }: { label: string; icon?: React.ElementType; prefix?: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-black ml-1">{label}</label>
+      <label className="text-[10px] uppercase tracking-[0.2em] text-foreground/70 font-bold ml-1">{label}</label>
       <div className="relative mt-2 group">
         {Icon && !prefix && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-brand transition-colors duration-300 z-20">
-            <Icon size={18} />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-white group-focus-within:text-brand transition-colors duration-300 z-20">
+            <Icon size={18} strokeWidth={1.2} />
           </div>
         )}
         {prefix && (
@@ -334,7 +334,7 @@ function ServiceSelector({ services, selected, onSelect }: { services: any[]; se
         className="w-full flex items-center justify-between rounded-2xl glass pl-12 pr-4 py-3.5 outline-none focus:ring-2 ring-brand/30 bg-transparent text-left transition-all hover:bg-white/5 border border-white/5"
       >
         <span className={cn("truncate pr-4 text-sm font-medium", !selected && "text-muted-foreground")}>{displayValue}</span>
-        <ChevronDown size={16} className={cn("transition-transform duration-200 text-muted-foreground shrink-0", isOpen && "rotate-180")} />
+        <ChevronDown size={16} className={cn("transition-transform duration-200 text-zinc-500 dark:text-white shrink-0", isOpen && "rotate-180")} strokeWidth={1.2} />
       </button>
 
       {isOpen && (
@@ -407,7 +407,7 @@ function CountryCodeSelector({ selected, onSelect }: { selected: typeof COUNTRIE
       >
         <span className="text-lg">{selected.flag}</span>
         <span>{selected.code}</span>
-        <ChevronDown size={14} className={cn("transition-transform duration-200 text-muted-foreground", isOpen && "rotate-180")} />
+        <ChevronDown size={14} className={cn("transition-transform duration-200 text-zinc-500 dark:text-white", isOpen && "rotate-180")} strokeWidth={1.2} />
       </button>
 
       {isOpen && (
@@ -458,11 +458,11 @@ function Info({ icon: Icon, t, d }: { icon: React.ElementType; t: string; d: str
       whileHover={{ x: 5 }}
       className="flex items-start gap-4 p-5 rounded-2xl glass border border-white/5 hover:border-brand/30 transition-all duration-300 group"
     >
-      <div className="size-12 rounded-xl bg-white/5 flex items-center justify-center text-brand shrink-0 group-hover:scale-110 group-hover:bg-brand/10 group-hover:text-brand transition-all duration-500 border border-white/5">
-        <Icon size={20} />
+      <div className="size-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-500 dark:text-white shrink-0 group-hover:scale-110 group-hover:bg-brand/10 group-hover:text-brand transition-all duration-500 border border-white/5">
+        <Icon size={20} strokeWidth={1.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-black mb-1">{t}</div>
+        <div className="text-[10px] uppercase tracking-[0.2em] text-foreground/70 font-bold mb-1">{t}</div>
         <div className="font-semibold text-sm leading-relaxed group-hover:text-foreground transition-colors line-clamp-2">{d}</div>
       </div>
     </motion.div>
@@ -484,7 +484,7 @@ function SocialIcon({ icon: Icon, href, label, brandColor }: { icon: React.Eleme
         className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300" 
         style={{ backgroundColor: brandColor }}
       />
-      <Icon size={20} className="relative z-10 transition-colors duration-300 group-hover:text-white" />
+      <Icon size={20} className="relative z-10 transition-colors duration-300 group-hover:text-white" strokeWidth={1.2} />
       <div 
         className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-full group-hover:translate-y-0"
         style={{ backgroundColor: brandColor }}
