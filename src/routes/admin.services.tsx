@@ -25,6 +25,8 @@ export const Route = createFileRoute("/admin/services")({
   component: ServicesPage 
 });
 
+const SUGGESTED_CATS = ["Print Design", "Branding", "Packaging", "Social Media", "Website Design"];
+
 function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +54,11 @@ function ServicesPage() {
     if (data) setServices(data);
     setLoading(false);
   }
+
+  const dynamicSuggestions = Array.from(new Set([
+    ...SUGGESTED_CATS,
+    ...services.map(s => s.category).filter(Boolean)
+  ])).sort();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -129,7 +136,13 @@ function ServicesPage() {
                 <DialogHeader><DialogTitle>{editingService ? "Edit" : "Add"} Service</DialogTitle></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                   <div className="space-y-2"><Label>Title</Label><Input name="title" defaultValue={editingService?.title} required className="glass" /></div>
-                  <div className="space-y-2"><Label>Category</Label><Input name="category" defaultValue={editingService?.category} required className="glass" /></div>
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Input name="category" list="category-list" defaultValue={editingService?.category} required className="glass" />
+                    <datalist id="category-list">
+                      {dynamicSuggestions.map(c => <option key={c} value={c} />)}
+                    </datalist>
+                  </div>
                   <div className="space-y-2"><Label>Price</Label><Input name="price" defaultValue={editingService?.price} className="glass" /></div>
                   <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={editingService?.description} className="glass" /></div>
                   <div className="pt-4 flex justify-end gap-2">

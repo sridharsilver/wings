@@ -26,6 +26,8 @@ export const Route = createFileRoute("/admin/portfolio")({
   component: PortfolioPage 
 });
 
+const SUGGESTED_CATS = ["Print Design", "Branding", "Packaging", "Social Media", "Website Design"];
+
 function PortfolioPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,12 @@ function PortfolioPage() {
     }
     setLoading(false);
   }
+
+  // Derive all available categories for suggestions
+  const dynamicSuggestions = Array.from(new Set([
+    ...SUGGESTED_CATS,
+    ...projects.map(p => p.category).filter(Boolean)
+  ])).sort();
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -209,7 +217,10 @@ function PortfolioPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="category" className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Category</Label>
-                      <Input id="category" name="category" defaultValue={editingProject?.category} required className="glass border-white/5 focus:ring-brand" placeholder="e.g. Branding" />
+                      <Input id="category" name="category" list="category-list" defaultValue={editingProject?.category} required className="glass border-white/5 focus:ring-brand" placeholder="e.g. Branding" />
+                      <datalist id="category-list">
+                        {dynamicSuggestions.map(c => <option key={c} value={c} />)}
+                      </datalist>
                     </div>
                   </div>
 

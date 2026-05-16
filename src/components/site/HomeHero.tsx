@@ -1,104 +1,140 @@
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Sparkles, Star, CheckCircle2 } from "lucide-react";
-import heroImg from "@/assets/hero-print.jpg";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+
+// Import slider images (fallbacks)
+import slide1 from "@/assets/portfolio/branding.png";
+import slide2 from "@/assets/portfolio/packaging.png";
+import slide3 from "@/assets/portfolio/brochure.png";
+import slide4 from "@/assets/portfolio/cosmetics.png";
+
+const DEFAULT_SLIDES = [slide1, slide2, slide3, slide4];
 
 export function HomeHero() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSlides() {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'hero_slider')
+          .maybeSingle();
+        
+        if (data?.value && Array.isArray(data.value) && data.value.length > 0) {
+          setSlides(data.value);
+        } else {
+          setSlides(DEFAULT_SLIDES);
+        }
+      } catch (err) {
+        setSlides(DEFAULT_SLIDES);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchSlides();
+  }, []);
+
+  const activeSlides = slides.length > 0 ? slides : DEFAULT_SLIDES;
+
+  useEffect(() => {
+    if (activeSlides.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [activeSlides]);
+
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-hero" />
-      <div className="absolute inset-0 grid-pattern opacity-30" />
-      <div className="relative mx-auto max-w-7xl px-12 md:px-20 pt-10 md:pt-20 pb-24 md:pb-32 grid lg:grid-cols-2 gap-12 items-center">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-          <span className="inline-flex items-center gap-2 px-3 py-1 text-xs uppercase tracking-widest rounded-full glass text-gradient-brand mb-10">
-            <Sparkles size={14} className="text-brand" /> From Print to Pixel
+    <section className="relative overflow-hidden min-h-screen flex items-center pt-20">
+      {/* Background Image Slider */}
+      <div className="absolute inset-0 z-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0"
+          >
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${activeSlides[currentSlide]})` }}
+            />
+          </motion.div>
+        </AnimatePresence>
+        
+        {/* Protective Overlays */}
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-brand/30 via-transparent to-brand-purple/30 opacity-50" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex flex-col items-center"
+        >
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 text-[10px] uppercase tracking-[0.3em] rounded-full glass border-white/10 text-brand font-black mb-10 shadow-sm">
+            <Sparkles size={14} className="text-brand" /> The Premium Studio Standard
           </span>
-          <h1 className="text-5xl md:text-7xl font-bold leading-[1.15] text-gradient pb-2 drop-shadow-sm">
-            Premium printing<br />& design that <span className="text-gradient-brand">moves brands</span>
+
+          <h1 className="text-5xl md:text-8xl font-black leading-[1] tracking-tighter text-white pb-6 drop-shadow-2xl">
+            Premium branding,<br />
+            & print solutions<br />
+            <span className="text-gradient-brand">for growing businesses</span>
           </h1>
-          <p className="mt-6 text-muted-foreground md:text-lg max-w-xl">
-            Wings Design Studio is a full-service studio crafting commercial printing, brand identities and digital experiences for ambitious teams.
+
+          <p className="mt-8 text-white/80 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+            Wings Design Studio blends elite print craft with strategic digital design to elevate ambitious brands into industry leaders.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-brand text-brand-foreground font-medium shadow-glow hover:scale-[1.02] active:scale-[0.98] transition-all">
-              Get a Quote <ArrowRight size={18} />
+
+          <div className="mt-12 flex flex-wrap gap-5 justify-center">
+            <Link to="/contact" className="group relative px-10 py-5 rounded-2xl bg-gradient-brand text-brand-foreground font-black shadow-glow hover:scale-105 active:scale-95 transition-all overflow-hidden">
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              <span className="relative flex items-center gap-2 text-lg">
+                Start Your Project <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+              </span>
             </Link>
-            <Link to="/portfolio" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass shadow-elegant hover:scale-[1.02] active:scale-[0.98] hover:bg-white/10 transition-all">
-              View Portfolio
+            <Link to="/portfolio" className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl glass border-white/5 shadow-elegant hover:bg-white/10 hover:scale-105 active:scale-95 transition-all font-black text-lg text-white">
+              View Our Work
             </Link>
-          </div>
-          <div className="mt-10 grid grid-cols-3 gap-6 max-w-md">
-            {[["12+", "Years"], ["500+", "Brands"], ["1.2k", "Projects"]].map(([n, l]) => (
-              <div key={l}>
-                <div className="text-2xl md:text-3xl font-bold text-gradient-brand">{n}</div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">{l}</div>
-              </div>
-            ))}
           </div>
         </motion.div>
-        
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          transition={{ duration: 0.8, delay: 0.2 }} 
-          className="relative lg:ml-auto"
-        >
-          {/* Background Glows */}
-          <div className="absolute -inset-10 bg-gradient-brand opacity-20 blur-[100px] rounded-full animate-pulse" />
-          <div className="absolute -top-20 -right-20 size-64 bg-brand-purple/20 blur-[80px] rounded-full" />
-          
-          {/* Floating Badges */}
-          <motion.div 
-            animate={{ y: [0, -10, 0] }} 
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-6 -left-6 z-20 glass p-4 rounded-2xl shadow-glow flex items-center gap-3"
-          >
-            <div className="size-10 rounded-xl bg-gradient-brand grid place-items-center text-brand-foreground shadow-glow">
-              <Star size={20} fill="currentColor" />
-            </div>
-            <div>
-              <div className="text-sm font-bold">5.0 Rating</div>
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Top Rated Studio</div>
-            </div>
-          </motion.div>
 
-          <motion.div 
-            animate={{ y: [0, 10, 0] }} 
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-10 -right-6 z-20 glass p-4 rounded-2xl shadow-elegant flex items-center gap-3"
-          >
-            <div className="size-10 rounded-xl bg-surface-elevated grid place-items-center text-brand shadow-sm">
-              <CheckCircle2 size={20} />
-            </div>
-            <div>
-              <div className="text-sm font-bold">Quality First</div>
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Verified Delivery</div>
-            </div>
-          </motion.div>
-
-          {/* Main Image Container */}
-          <div className="relative rounded-[2.5rem] overflow-hidden shadow-elegant border border-white/10 bg-white/5 p-3 backdrop-blur-sm group">
-            <div className="absolute inset-0 bg-gradient-to-tr from-brand/10 via-transparent to-brand-purple/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            <img 
-              src={heroImg} 
-              alt="Premium printed materials" 
-              width={1536} 
-              height={1024} 
-              className="w-full h-auto rounded-[2rem] shadow-2xl transition-transform duration-700 group-hover:scale-[1.02]" 
+        {/* Slide Indicators */}
+        <div className="flex justify-center gap-3 mt-12">
+          {activeSlides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 bg-brand' : 'w-2 bg-white/30 hover:bg-white/50'}`}
+              aria-label={`Go to slide ${i + 1}`}
             />
-            
-            {/* Overlay Glass Tag */}
-            <div className="absolute bottom-8 left-8 right-8 p-4 glass rounded-2xl flex items-center justify-between opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-              <div className="flex items-center gap-2">
-                <div className="size-2 rounded-full bg-brand animate-pulse" />
-                <span className="text-xs font-medium uppercase tracking-widest">Premium Offset Press</span>
-              </div>
-              <div className="text-[10px] font-bold text-brand">EST. 2012</div>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          {/* Decorative Elements */}
-          <div className="absolute -bottom-4 -left-4 size-20 rounded-full border border-white/10 glass opacity-50 blur-sm" />
+        {/* Minimalist Stats Bar */}
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ duration: 1, delay: 0.5 }}
+          className="mt-20 py-10 border-t border-white/10 flex flex-wrap justify-center gap-10 md:gap-20"
+        >
+          {[["12+", "Years Experience"], ["500+", "Premium Brands"], ["100%", "Quality Promise"]].map(([n, l]) => (
+            <div key={l} className="space-y-1">
+              <div className="text-3xl md:text-4xl font-black text-white leading-none tracking-tighter">{n}</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-black">{l}</div>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>

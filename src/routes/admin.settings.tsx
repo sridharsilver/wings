@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 import { 
   Settings, 
   MessageSquare, 
@@ -21,9 +22,12 @@ import {
   Home as HomeIcon,
   Phone as PhoneIcon,
   Globe,
-  Database,
+  Volume2,
   VolumeX,
-  Volume2
+  Upload,
+  Trash2,
+  Plus,
+  Database
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
@@ -36,6 +40,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/admin/settings')({
   component: AdminSettingsPage,
@@ -61,9 +66,31 @@ interface VisibilitySettings {
   social_linkedin: string;
   social_twitter: string;
   chatbot_voice_enabled: boolean;
+  // Menu Visibility
+  show_menu_home: boolean;
+  show_menu_about: boolean;
+  show_menu_services: boolean;
+  show_menu_portfolio: boolean;
+  show_menu_testimonials: boolean;
+  show_menu_blog: boolean;
+  show_menu_contact: boolean;
 }
 
 const VISIBILITY_GROUPS = [
+  {
+    id: 'menu',
+    label: 'Main Navigation Menu',
+    icon: Settings,
+    items: [
+      { id: 'show_menu_home', label: 'Home Link', description: 'Show/hide Home in main menu', icon: HomeIcon },
+      { id: 'show_menu_about', label: 'About Link', description: 'Show/hide About in main menu', icon: Users },
+      { id: 'show_menu_services', label: 'Services Link', description: 'Show/hide Services in main menu', icon: Briefcase },
+      { id: 'show_menu_portfolio', label: 'Portfolio Link', description: 'Show/hide Portfolio in main menu', icon: ImageIcon },
+      { id: 'show_menu_testimonials', label: 'Testimonials Link', description: 'Show/hide Testimonials in main menu', icon: Star },
+      { id: 'show_menu_blog', label: 'Blog Link', description: 'Show/hide Blog in main menu', icon: FileText },
+      { id: 'show_menu_contact', label: 'Contact Link', description: 'Show/hide Contact in main menu', icon: PhoneIcon },
+    ]
+  },
   {
     id: 'global',
     label: 'Global Features',
@@ -96,6 +123,125 @@ const VISIBILITY_GROUPS = [
   }
 ];
 
+function HeroSliderManager() {
+  const [slides, setSlides] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSlides();
+  }, []);
+
+  async function fetchSlides() {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'hero_slider')
+        .maybeSingle();
+
+      if (data?.value) {
+        setSlides(data.value as string[]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveSlides(newSlides: string[]) {
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({ 
+        key: 'hero_slider', 
+        value: newSlides,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'key' });
+
+    if (error) {
+      toast.error("Failed to save slider settings");
+    } else {
+      setSlides(newSlides);
+    }
+  }
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const fileName = `hero-${Date.now()}.${fileExt}`;
+      const filePath = `hero/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("images")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("images")
+        .getPublicUrl(filePath);
+
+      const newSlides = [...slides, publicUrl];
+      await saveSlides(newSlides);
+      toast.success("Slide added successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleDelete(index: number) {
+    if (!confirm("Remove this slide?")) return;
+    const newSlides = slides.filter((_, i) => i !== index);
+    await saveSlides(newSlides);
+    toast.success("Slide removed");
+  }
+
+  if (loading) return <div className="h-40 flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+
+  return (
+    <Card className="border-none shadow-xl bg-surface/50 backdrop-blur-xl rounded-2xl md:rounded-3xl">
+      <CardHeader>
+        <CardTitle>Hero Image Slider</CardTitle>
+        <CardDescription>Upload high-resolution images for your homepage slider (Recommended: 1920x1080).</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {slides.map((url, i) => (
+            <div key={url} className="group relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-white/5">
+              <img src={url} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Button variant="destructive" size="icon" onClick={() => handleDelete(i)} className="rounded-full">
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            </div>
+          ))}
+          <label className="aspect-video rounded-xl border-2 border-dashed border-white/10 hover:border-brand/50 hover:bg-brand/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group">
+            <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
+            {uploading ? (
+              <Loader2 className="animate-spin text-brand" />
+            ) : (
+              <>
+                <div className="size-10 rounded-full bg-brand/10 text-brand flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Plus size={20} />
+                </div>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Add Slide</span>
+              </>
+            )}
+          </label>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function AdminSettingsPage() {
   const [settings, setSettings] = useState<VisibilitySettings>({
     show_chatbot: true,
@@ -117,6 +263,13 @@ function AdminSettingsPage() {
     social_linkedin: 'https://linkedin.com/company/wingsgraphics',
     social_twitter: 'https://twitter.com/wingsgraphics',
     chatbot_voice_enabled: false,
+    show_menu_home: true,
+    show_menu_about: true,
+    show_menu_services: true,
+    show_menu_portfolio: true,
+    show_menu_testimonials: true,
+    show_menu_blog: true,
+    show_menu_contact: true,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -240,7 +393,7 @@ function AdminSettingsPage() {
       </div>
 
       <Tabs defaultValue="visibility" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 mb-6 md:mb-8 bg-surface/50 p-1 rounded-xl md:rounded-2xl border border-border/50">
+        <TabsList className="grid w-full max-w-lg grid-cols-3 mb-6 md:mb-8 bg-surface/50 p-1 rounded-xl md:rounded-2xl border border-border/50">
           <TabsTrigger value="visibility" className="rounded-lg md:rounded-xl flex items-center gap-2 text-xs md:text-sm data-[state=active]:bg-background">
             <Eye size={14} className="md:size-4" />
             Visibility
@@ -249,7 +402,15 @@ function AdminSettingsPage() {
             <Database size={14} className="md:size-4" />
             Site Info
           </TabsTrigger>
+          <TabsTrigger value="hero" className="rounded-lg md:rounded-xl flex items-center gap-2 text-xs md:text-sm data-[state=active]:bg-background">
+            <ImageIcon size={14} className="md:size-4" />
+            Hero Slider
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="hero" className="space-y-6 focus-visible:outline-none">
+          <HeroSliderManager />
+        </TabsContent>
 
         <TabsContent value="visibility" className="space-y-6 focus-visible:outline-none">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">

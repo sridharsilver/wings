@@ -42,12 +42,12 @@ function ServicesPage() {
   }, []);
   
   // Group services by category
-  const categories = Array.from(new Set((data || []).map(s => s.category || "General")));
+  const categories = Array.from(new Set((data || []).map(s => (s.category || "General").trim())));
   const groups = categories.map((cat, i) => ({
     eyebrow: `0${i + 1}`,
     title: cat,
-    desc: `Premium ${(cat || "").toLowerCase()} services tailored to your brand's needs.`,
-    items: data.filter(s => (s.category || "General") === cat)
+    desc: `Premium ${cat.toLowerCase()} services tailored to your brand's needs.`,
+    items: data.filter(s => (s.category || "General").trim() === cat)
   }));
   return (
     <SiteLayout>

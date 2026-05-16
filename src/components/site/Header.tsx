@@ -4,22 +4,55 @@ import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { useTheme } from "@/hooks/use-theme";
 import { Logo } from "../ui/Logo";
+import { supabase } from "@/lib/supabase";
 
 const NAV = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
-  { to: "/services", label: "Services" },
-  { to: "/portfolio", label: "Portfolio" },
-  { to: "/testimonials", label: "Testimonials" },
-  { to: "/blog", label: "Blog" },
-  { to: "/contact", label: "Contact" },
+  { to: "/", label: "Home", key: "show_menu_home" },
+  { to: "/about", label: "About", key: "show_menu_about" },
+  { to: "/services", label: "Services", key: "show_menu_services" },
+  { to: "/portfolio", label: "Portfolio", key: "show_menu_portfolio" },
+  { to: "/testimonials", label: "Testimonials", key: "show_menu_testimonials" },
+  { to: "/blog", label: "Blog", key: "show_menu_blog" },
+  { to: "/contact", label: "Contact", key: "show_menu_contact" },
 ];
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Initialize from localStorage to prevent flicker
+  const [visibility, setVisibility] = useState<any>(() => {
+    const cached = typeof window !== 'undefined' ? localStorage.getItem('site_visibility') : null;
+    return cached ? JSON.parse(cached) : null;
+  });
   const { theme } = useTheme();
   const path = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    async function fetchVisibility() {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'frontend_visibility')
+          .maybeSingle();
+        
+        if (error) throw error;
+        if (data?.value) {
+          setVisibility(data.value);
+          // Cache the results
+          localStorage.setItem('site_visibility', JSON.stringify(data.value));
+        }
+      } catch (err) {
+        console.error("Error fetching menu visibility:", err);
+      }
+    }
+    fetchVisibility();
+  }, []);
+
+  // Filter NAV items based on visibility settings
+  // Default to true if the visibility data hasn't loaded yet or key is missing
+  const visibleNav = NAV.filter(n => !visibility || visibility[n.key] !== false);
+  const showContactButton = !visibility || visibility.show_menu_contact !== false;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -46,7 +79,7 @@ export function Header() {
             <Logo className="h-12 md:h-11" />
           </Link>
           <ul className="hidden lg:flex items-center gap-1">
-            {NAV.map((n) => {
+            {visibleNav.map((n) => {
               const active = path === n.to;
               return (
                 <li key={n.to}>
@@ -59,9 +92,11 @@ export function Header() {
           </ul>
           <div className="hidden lg:flex items-center gap-3">
             <ThemeToggle />
-            <Link to="/contact" className="px-4 py-2 text-sm font-medium rounded-lg bg-gradient-brand text-brand-foreground shadow-glow hover:opacity-90 transition">
-              Get a Quote
-            </Link>
+            {showContactButton && (
+              <Link to="/contact" className="px-4 py-2 text-sm font-medium rounded-lg bg-gradient-brand text-brand-foreground shadow-glow hover:opacity-90 transition">
+                Get a Quote
+              </Link>
+            )}
           </div>
           <div className="flex lg:hidden items-center gap-2">
             <ThemeToggle />
@@ -72,10 +107,12 @@ export function Header() {
         </nav>
         {open && (
           <div className="lg:hidden mt-2 glass rounded-2xl p-4 space-y-1">
-            {NAV.map((n) => (
+            {visibleNav.map((n) => (
               <Link key={n.to} to={n.to} className="block px-3 py-2.5 rounded-lg text-sm hover:bg-foreground/5">{n.label}</Link>
             ))}
-            <Link to="/contact" className="block mt-2 text-center px-4 py-2.5 rounded-lg bg-gradient-brand text-brand-foreground font-medium">Get a Quote</Link>
+            {showContactButton && (
+              <Link to="/contact" className="block mt-2 text-center px-4 py-2.5 rounded-lg bg-gradient-brand text-brand-foreground font-medium">Get a Quote</Link>
+            )}
           </div>
         )}
       </div>

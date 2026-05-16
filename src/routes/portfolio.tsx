@@ -21,14 +21,11 @@ export const Route = createFileRoute("/portfolio")({
   component: PortfolioPage,
 });
 
-const CATS = ["All", "Print Design", "Branding", "Packaging", "Social Media", "Website Design"] as const;
-type Cat = typeof CATS[number];
-
-type Project = { id: number; title: string; category: string; description: string; image_url: string; featured: boolean };
+type Project = { id: string | number; title: string; category: string; description: string; image_url: string; featured: boolean };
 
 function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [filter, setFilter] = useState<Cat>("All");
+  const [filter, setFilter] = useState<string>("All");
   const [open, setOpen] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +41,10 @@ function PortfolioPage() {
     load();
   }, []);
   
-  const list = filter === "All" ? projects : projects.filter((p) => p.category === filter);
+  // Dynamically derive categories from data
+  const categories = ["All", ...Array.from(new Set(projects.map(p => (p.category || "").trim()))).filter(Boolean).sort()];
+  
+  const list = filter === "All" ? projects : projects.filter((p) => (p.category || "").trim() === filter);
 
   return (
     <SiteLayout>
@@ -55,7 +55,7 @@ function PortfolioPage() {
       />
       <Section>
         <div className="mt-10 flex flex-wrap gap-2">
-          {CATS.map((c) => (
+          {categories.map((c) => (
             <button
               key={c}
               onClick={() => setFilter(c)}
